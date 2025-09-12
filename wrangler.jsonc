@@ -1,0 +1,17 @@
+{
+  "main": ".open-next/worker.js",
+  "name": "yt-trending-finder",
+  "compatibility_date": "2025-03-25",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "yt_trending_finder",
+      "database_id": "cdbc6f3b-0b2b-498c-be95-95ad144f7203"
+    }
+  ]
+}

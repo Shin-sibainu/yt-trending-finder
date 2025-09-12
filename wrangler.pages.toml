@@ -1,0 +1,15 @@
+name = "yt-trending-finder"
+compatibility_date = "2024-05-01"
+
+# For Cloudflare Pages with next-on-pages
+pages_build_output_dir = ".vercel/output/static"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "yt_trending_finder"
+database_id = "REPLACE_WITH_YOUR_D1_ID"
+
+[vars]
+# Public build-time env is set via Pages project settings
+# Secrets should be configured via Pages > Settings > Environment Variables
+
