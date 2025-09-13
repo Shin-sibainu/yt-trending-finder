@@ -1,9 +1,23 @@
-import './globals.css';
+import "./globals.css";
 
 export const metadata = {
-  title: "YT Trending Finder (MVP)",
-  description: "Find trending YouTube videos with high VSR",
-};
+  title: "YouTube Trending Finder",
+  description: "登録者比で“急上昇中”のYouTube動画を発見",
+  openGraph: {
+    title: "YouTube Trending Finder",
+    description: "登録者比で“急上昇中”のYouTube動画を発見",
+    images: [{ url: "/opengraph-image" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "YouTube Trending Finder",
+    description: "登録者比で“急上昇中”のYouTube動画を発見",
+    images: ["/opengraph-image"],
+  },
+  icons: {
+    icon: "/icon.svg",
+  },
+} as const;
 
 export default function RootLayout({
   children,
@@ -12,9 +26,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ja">
-      <body>
-        {children}
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

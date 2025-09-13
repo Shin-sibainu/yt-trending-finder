@@ -135,8 +135,8 @@ export async function GET(req: Request, ctx?: any) {
   // Env and bindings resolution for Workers (ctx) or dev/Vercel (process.env)
   let env: Env = (ctx as any)?.cloudflare?.env ?? {};
   const DB = env.DB;
-  const YT_KEY =
-    env.YOUTUBE_API_KEY || (globalThis as any).process?.env?.YOUTUBE_API_KEY;
+  const overrideKey = req.headers.get('x-youtube-api-key')?.trim() || undefined;
+  const YT_KEY = overrideKey || env.YOUTUBE_API_KEY || (globalThis as any).process?.env?.YOUTUBE_API_KEY;
   const TS_SECRET =
     env.TURNSTILE_SECRET_KEY ||
     (globalThis as any).process?.env?.TURNSTILE_SECRET_KEY;

@@ -40,7 +40,7 @@ export default function ResultsSection({ data }: ResultsSectionProps) {
   const [viewMode, setViewMode] = useState<"card" | "table">("card");
   const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
   const [page, setPage] = useState<number>(1);
-  const pageSize = 50;
+  const pageSize = 30;
 
   const totalPages = useMemo(() => Math.ceil(data.items.length / pageSize), [data.items.length]);
   const pagedItems = useMemo(() => {

@@ -14,20 +14,7 @@ export default function Header() {
             <p className="logo-subtitle">急上昇動画をAIスコアで発見</p>
           </div>
         </div>
-        <nav className="header-nav">
-          <div className="nav-item">
-            <span className="nav-icon">📊</span>
-            <span className="nav-text">トレンド分析</span>
-          </div>
-          <div className="nav-item">
-            <span className="nav-icon">🔥</span>
-            <span className="nav-text">人気急上昇</span>
-          </div>
-          <div className="nav-item">
-            <span className="nav-icon">💡</span>
-            <span className="nav-text">使い方</span>
-          </div>
-        </nav>
+        {/* navigation removed per request */}
       </div>
     </header>
   );

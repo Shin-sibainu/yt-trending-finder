@@ -12,11 +12,15 @@ type SearchFormProps = {
     order: "date" | "relevance" | "viewCount";
     pages: number;
     tsToken: string | null;
+    customApiKey?: string | null;
   }) => void;
   loading: boolean;
+  registerPrefill?: (fn: (vals: Partial<{ q: string; period: number; minViews: number; videoType: "all"|"shorts"|"long"; subscriberUpper: string; order: "date"|"relevance"|"viewCount"; pages: number; }>) => void) => void;
+  registerSubmit?: (fn: () => void) => void;
+  onKeywordChange?: (q: string) => void;
 };
 
-export default function SearchForm({ onSearch, loading }: SearchFormProps) {
+export default function SearchForm({ onSearch, loading, registerPrefill, registerSubmit, onKeywordChange }: SearchFormProps) {
   const [q, setQ] = useState("");
   const [period, setPeriod] = useState(30);
   const [minViews, setMinViews] = useState(10000);
@@ -25,6 +29,8 @@ export default function SearchForm({ onSearch, loading }: SearchFormProps) {
   const [order, setOrder] = useState<"date" | "relevance" | "viewCount">("viewCount");
   const [pages, setPages] = useState<number>(1);
   const [tsToken, setTsToken] = useState<string | null>(null);
+  const [customApiKey, setCustomApiKey] = useState<string>("");
+  const [rememberKey, setRememberKey] = useState<boolean>(true);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const tsContainerRef = useRef<HTMLDivElement | null>(null);
 
@@ -60,6 +66,40 @@ export default function SearchForm({ onSearch, loading }: SearchFormProps) {
     }
   }, []);
 
+  // Load stored API key
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('yt-custom-api-key');
+      if (saved) setCustomApiKey(saved);
+    } catch {}
+  }, []);
+
+  // Expose prefill setter to parent if requested
+  useEffect(() => {
+    if (!registerPrefill) return;
+    registerPrefill((vals) => {
+      if (vals.q !== undefined) { setQ(vals.q); onKeywordChange?.(vals.q); }
+      if (vals.period !== undefined) setPeriod(vals.period);
+      if (vals.minViews !== undefined) setMinViews(vals.minViews);
+      if (vals.videoType !== undefined) setVideoType(vals.videoType);
+      if (vals.subscriberUpper !== undefined) setSubscriberUpper(vals.subscriberUpper);
+      if (vals.order !== undefined) setOrder(vals.order);
+      if (vals.pages !== undefined) setPages(vals.pages);
+    });
+  }, [registerPrefill]);
+
+  // Expose submit to parent
+  useEffect(() => {
+    if (!registerSubmit) return;
+    registerSubmit(() => {
+      if (!q || !q.trim()) {
+        // Do not auto-submit when keyword is empty
+        return;
+      }
+      onSearch({ q, period, minViews, videoType, subscriberUpper, order, pages, tsToken });
+    });
+  }, [registerSubmit, q, period, minViews, videoType, subscriberUpper, order, pages, tsToken, onSearch]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSearch({
@@ -71,7 +111,16 @@ export default function SearchForm({ onSearch, loading }: SearchFormProps) {
       order,
       pages,
       tsToken,
+      customApiKey: customApiKey ? customApiKey.trim() : null,
     });
+    // Save or clear depending on toggle
+    try {
+      if (rememberKey && customApiKey.trim()) {
+        localStorage.setItem('yt-custom-api-key', customApiKey.trim());
+      } else {
+        localStorage.removeItem('yt-custom-api-key');
+      }
+    } catch {}
   };
 
   return (
@@ -85,7 +134,7 @@ export default function SearchForm({ onSearch, loading }: SearchFormProps) {
             <input
               className="search-input"
               value={q}
-              onChange={(e) => setQ(e.target.value)}
+              onChange={(e) => { const val = e.target.value; setQ(val); onKeywordChange?.(val); }}
               placeholder="キーワードを入力（例: AI, 料理, ゲーム実況, ASMR）"
               required
             />
@@ -258,6 +307,26 @@ export default function SearchForm({ onSearch, loading }: SearchFormProps) {
                   <option value={4}>200件</option>
                   <option value={5}>250件</option>
                 </select>
+              </div>
+
+              <div className="option-group">
+                <label className="option-label">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 15v-3m0 7a9 9 0 100-18 9 9 0 000 18z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  YouTube APIキー（任意）
+                </label>
+                <input
+                  className="option-input"
+                  type="password"
+                  value={customApiKey}
+                  onChange={(e) => setCustomApiKey(e.target.value)}
+                  placeholder="ユーザー自身のAPIキー（レート制限時の回避に使用）"
+                />
+                <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'var(--text-secondary)' }}>
+                  <input type="checkbox" checked={rememberKey} onChange={(e) => setRememberKey(e.target.checked)} />
+                  この端末に保存する（ローカルストレージ）。送信時は当サーバ経由でYouTube APIに利用されます。
+                </label>
               </div>
             </div>
           </div>

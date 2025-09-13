@@ -101,15 +101,17 @@ export default function VideoTable({ videos, onZoom }: VideoTableProps) {
                 )}
               </td>
               <td className="td-vsr">
-                <span className={`vsr-value ${video.vsr > 10 ? 'high' : video.vsr > 5 ? 'medium' : ''}`}>
-                  {video.vsr.toFixed(2)}
-                </span>
+                {(() => { const t = (video.vsr < 2 ? 0 : video.vsr < 5 ? 1 : video.vsr < 10 ? 2 : video.vsr < 20 ? 3 : 4); return (
+                  <span className={`vsr-value tier-${t}`}>{video.vsr.toFixed(2)}</span>
+                );})()}
               </td>
               <td className="td-date">
                 {new Date(video.publishedAt).toLocaleDateString("ja-JP")}
               </td>
               <td className="td-score">
-                <span className="score-value">{video.score.toFixed(2)}</span>
+                {(() => { const t = (video.score < 2 ? 0 : video.score < 5 ? 1 : video.score < 10 ? 2 : video.score < 20 ? 3 : 4); return (
+                  <span className={`score-value tier-${t}`}>{video.score.toFixed(2)}</span>
+                );})()}
               </td>
             </tr>
           ))}

@@ -1,9 +1,11 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import Header from "./components/Header";
 import SearchForm from "./components/SearchForm";
 import ResultsSection from "./components/ResultsSection";
+import EmptyState from "./components/EmptyState";
+import SkeletonLoader from "./components/SkeletonLoader";
 
 type VideoItem = {
   id: string;
@@ -36,6 +38,9 @@ export default function HomePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<SearchResponse | null>(null);
+  const prefillRef = useRef<null | ((vals: Partial<{ q: string; period: number; minViews: number; videoType: "all"|"shorts"|"long"; subscriberUpper: string; order: "date"|"relevance"|"viewCount"; pages: number; }>) => void)>(null);
+  const submitRef = useRef<null | (() => void)>(null);
+  const [currentQ, setCurrentQ] = useState<string>("");
 
   const handleSearch = useCallback(
     async (params: {
@@ -47,6 +52,7 @@ export default function HomePage() {
       order: "date" | "relevance" | "viewCount";
       pages: number;
       tsToken: string | null;
+      customApiKey?: string | null;
     }) => {
       setLoading(true);
       setError(null);
@@ -68,6 +74,9 @@ export default function HomePage() {
         if (params.tsToken) {
           headers["x-turnstile-token"] = params.tsToken;
         }
+        if (params.customApiKey) {
+          headers["x-youtube-api-key"] = params.customApiKey;
+        }
 
         const res = await fetch(`/api/search?${searchParams.toString()}`, { headers });
         if (!res.ok) throw new Error(`API error: ${res.status}`);
@@ -86,7 +95,7 @@ export default function HomePage() {
     <>
       <Header />
       
-      <SearchForm onSearch={handleSearch} loading={loading} />
+      <SearchForm onSearch={handleSearch} loading={loading} registerPrefill={(fn) => { prefillRef.current = fn; }} registerSubmit={(fn) => { submitRef.current = fn; }} onKeywordChange={(q) => setCurrentQ(q)} />
       
       {error && (
         <div className="error-container">
@@ -99,7 +108,15 @@ export default function HomePage() {
         </div>
       )}
       
-      {data && <ResultsSection data={data} />}
+      {loading && <SkeletonLoader />}
+      
+      {!data && !loading && !error && (
+        <div className="layout-container">
+          <EmptyState onPrefill={(vals) => prefillRef.current?.(vals)} onSubmitNow={() => submitRef.current?.()} canSubmit={!!currentQ.trim()} />
+        </div>
+      )}
+
+      {data && !loading && <ResultsSection data={data} />}
       
       <footer className="footer-modern">
         <div className="footer-content">
