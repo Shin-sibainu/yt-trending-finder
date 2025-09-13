@@ -14,6 +14,7 @@ type VideoItem = {
 
 type VideoCardProps = {
   video: VideoItem;
+  onZoom?: (videoId: string, title: string) => void;
 };
 
 function formatViews(views: number): string {
@@ -39,7 +40,7 @@ function formatDate(dateString: string): string {
   return `${Math.floor(diffDays / 365)}年前`;
 }
 
-export default function VideoCard({ video }: VideoCardProps) {
+export default function VideoCard({ video, onZoom }: VideoCardProps) {
   return (
     <a
       href={`https://www.youtube.com/watch?v=${video.id}`}
@@ -48,7 +49,13 @@ export default function VideoCard({ video }: VideoCardProps) {
       className="video-card-modern"
     >
       <div className="video-thumbnail">
-        <img src={video.thumbnailUrl} alt={video.title} loading="lazy" />
+        <img
+          src={video.thumbnailUrl}
+          alt={video.title}
+          loading="lazy"
+          onClick={(e) => { if (onZoom) { e.preventDefault(); onZoom(video.id, video.title); } }}
+          style={{ cursor: onZoom ? 'zoom-in' as const : 'pointer' }}
+        />
         {video.isShort && (
           <span className="shorts-badge">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">

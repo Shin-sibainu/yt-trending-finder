@@ -14,13 +14,14 @@ type VideoItem = {
 
 type VideoTableProps = {
   videos: VideoItem[];
+  onZoom?: (videoId: string, title: string) => void;
 };
 
 function formatNumber(num: number): string {
   return num.toLocaleString('ja-JP');
 }
 
-export default function VideoTable({ videos }: VideoTableProps) {
+export default function VideoTable({ videos, onZoom }: VideoTableProps) {
   return (
     <div className="table-container">
       <table className="video-table">
@@ -55,17 +56,14 @@ export default function VideoTable({ videos }: VideoTableProps) {
           {videos.map((video) => (
             <tr key={video.id} className="table-row">
               <td className="td-thumbnail">
-                <a
-                  href={`https://www.youtube.com/watch?v=${video.id}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="thumbnail-link"
-                >
+                <a href={`https://www.youtube.com/watch?v=${video.id}`} target="_blank" rel="noreferrer" className="thumbnail-link">
                   <img
                     src={video.thumbnailUrl}
                     alt={video.title}
                     className="table-thumbnail"
                     loading="lazy"
+                    onClick={(e) => { if (onZoom) { e.preventDefault(); onZoom(video.id, video.title); } }}
+                    style={{ cursor: onZoom ? 'zoom-in' as const : 'pointer' }}
                   />
                   {video.isShort && (
                     <span className="table-shorts-badge">S</span>

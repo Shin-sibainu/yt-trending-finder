@@ -639,6 +639,18 @@ body {
   vertical-align: middle;
 }
 
+/* Lightbox (thumbnail zoom) */
+.lightbox-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;z-index:1000}
+.lightbox-content{position:relative;max-width:92vw;max-height:92vh}
+.lightbox-img{max-width:92vw;max-height:92vh;border-radius:12px;box-shadow:var(--shadow-xl)}
+.lightbox-close{position:absolute;top:-12px;right:-12px;background:rgba(0,0,0,.85);color:#fff;border:none;border-radius:9999px;cursor:pointer;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-weight:700}
+
+/* Pagination */
+.pagination{display:flex;gap:8px;align-items:center;justify-content:flex-end;margin-top:12px}
+.page-btn{padding:8px 10px;border:1px solid var(--border);background:var(--bg-primary);color:var(--text-primary);border-radius:8px;cursor:pointer}
+.page-btn[disabled]{opacity:.5;cursor:not-allowed}
+.page-btn.active{border-color:var(--primary);color:#fff;background:var(--primary)}
+
 .th-thumbnail {
   width: 120px;
 }

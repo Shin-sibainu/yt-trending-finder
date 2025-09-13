@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import VideoCard from "./VideoCard";
 import VideoTable from "./VideoTable";
 
@@ -38,6 +38,21 @@ type ResultsSectionProps = {
 
 export default function ResultsSection({ data }: ResultsSectionProps) {
   const [viewMode, setViewMode] = useState<"card" | "table">("card");
+  const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
+  const [page, setPage] = useState<number>(1);
+  const pageSize = 50;
+
+  const totalPages = useMemo(() => Math.ceil(data.items.length / pageSize), [data.items.length]);
+  const pagedItems = useMemo(() => {
+    if (totalPages <= 1) return data.items;
+    const start = (page - 1) * pageSize;
+    return data.items.slice(start, start + pageSize);
+  }, [data.items, page, totalPages]);
+
+  function openLightbox(videoId: string, title: string) {
+    const src = `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`;
+    setLightbox({ src, alt: title });
+  }
 
   if (data.items.length === 0) {
     return (
@@ -125,14 +140,36 @@ export default function ResultsSection({ data }: ResultsSectionProps) {
       <div className="results-content">
         {viewMode === "card" ? (
           <div className="video-grid">
-            {data.items.map((video) => (
-              <VideoCard key={video.id} video={video} />
+            {pagedItems.map((video) => (
+              <VideoCard key={video.id} video={video} onZoom={openLightbox} />
             ))}
           </div>
         ) : (
-          <VideoTable videos={data.items} />
+          <VideoTable videos={pagedItems} onZoom={openLightbox} />
         )}
       </div>
+
+      {totalPages > 1 && (
+        <div className="pagination">
+          <button className="page-btn" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}>前へ</button>
+          {Array.from({ length: totalPages }).slice(0, 10).map((_, i) => {
+            const pnum = i + 1;
+            return (
+              <button key={pnum} className={`page-btn ${page === pnum ? 'active' : ''}`} onClick={() => setPage(pnum)}>{pnum}</button>
+            );
+          })}
+          <button className="page-btn" onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}>次へ</button>
+        </div>
+      )}
+
+      {lightbox && (
+        <div className="lightbox-backdrop" onClick={() => setLightbox(null)}>
+          <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
+            <button className="lightbox-close" onClick={() => setLightbox(null)} aria-label="閉じる">×</button>
+            <img src={lightbox.src} alt={lightbox.alt} className="lightbox-img" />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

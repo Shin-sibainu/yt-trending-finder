@@ -23,7 +23,7 @@ export default function SearchForm({ onSearch, loading }: SearchFormProps) {
   const [videoType, setVideoType] = useState<"all" | "shorts" | "long">("all");
   const [subscriberUpper, setSubscriberUpper] = useState<string>("");
   const [order, setOrder] = useState<"date" | "relevance" | "viewCount">("viewCount");
-  const [pages, setPages] = useState<number>(3);
+  const [pages, setPages] = useState<number>(1);
   const [tsToken, setTsToken] = useState<string | null>(null);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const tsContainerRef = useRef<HTMLDivElement | null>(null);
